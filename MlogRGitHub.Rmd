@@ -515,7 +515,15 @@ Example, what is the log odds, OR and probability of CHD for those aged 45 years
 
 
 ```{r}
-newdata1 <- expand.grid(age = seq(from = 45, to = 45, by = 10), totChol = seq(from = 400, to = 400, by = 10), diabetes = c('nodm', 'dm'), gender = c('male', 'female'), cigsPerDay = seq(from = 5, to = 60), prevalentHyp = c('hpt', 'no hpt'), BMI = seq(from = 16.00, to = 60), BPMeds = c('not on hypertensive medication', 'on hypertensive medication'), TenYearCHD = c('no chd', 'chd'))
+newdata1 <- expand.grid(age = seq(from = 32, to = 70, by = 10),
+                       totChol = seq(from = 113, to = 400, by = 50),
+                       diabetes = c('no dm', 'dm'),
+                       gender = c('male', 'female'),
+                       cigsPerDay = seq(from = 0, to = 70),
+                       prevalentHyp = c('hpt', 'no hpt'),
+                       BMI = seq(from = 15.54, to = 56.80, by=10),
+                       BPMeds = c('not on hypertensive medication', 'on hypertensive medication'),
+                       TenYearCHD = c('no chd', 'chd'))
 newdata1
 head(newdata1)
 ```
@@ -527,14 +535,20 @@ Example, what is the log odds, OR and probability of CHD for those aged 45 years
 ```{r}
 model.mlr.new <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = newdata1)
 model.mlr.new
-predict.odds <- predict(model.mlr.new, newdata = newdata1, type.predict = 'link')
+predict.odds <- augment(prem.final.mod, newdata = newdata1, type.predict = 'link')
 head(predict.odds)
 ```
 
 ```{r}
-predict.prob <- predict(model.mlr.new, newdata = newdata1, type.predict = 'response')
+predict.prob <- augment(prem.final.mod, newdata = newdata1, type.predict = 'response')
 head(predict.prob)
 ```
+
+```{r}
+augment(prem.final.mod, newdata = newdata1, type.predict = 'response')
+```
+
+
 ## Model Checking 
 
 ### Check overall fitness:
@@ -552,6 +566,27 @@ by using:
 • Hosmer-Lemeshow test
 • modidied Hosmer-Lemeshow test
 • Oseo Rojek test
+
+#### Hosmer-Lemeshow Test
+
+```{r}
+# Assuming 'model' is your logistic regression model
+library(ResourceSelection)
+hoslem.test(Data1$TenYearCHD, fitted(prem.final.mod), g = 10)  # Adjust 'g' as needed
+
+```
+
+P value is <0.001, hence model shows good fit 
+
+#### Area under the Curve (ROC)
+
+```{r}
+# Assuming 'model' is your logistic regression model
+library(pROC)
+roc_curve <- roc(response ~ predict(prem.final.mod, type = "response"), data = Data1)
+auc(roc_curve)
+
+```
 
 
 # Interpretation
