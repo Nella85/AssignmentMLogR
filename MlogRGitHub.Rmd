@@ -708,6 +708,7 @@ Hence, the final model will be:
 
 ```{r}
 Final.Model <- mlr.filtered.influential
+tidy(Final.Model, exponentiate = TRUE)
 ```
 
 ```{r}
@@ -717,7 +718,13 @@ tbl_regression(Final.Model, exponentiate = TRUE) %>%
   as_gt() %>%
   gt::tab_header(title = "Table 3. Multiple Logistic Regression (Final Model)")
 ```
-Interpretation:
+
+## Model Equation 
+
+Ten Years risk of CHD = (0.0000175) + 2.36(gender) + 1.14(age) + 1.02(cigsperday) + 2.12(prevalentHyp + 0.196(diabetes) + 1.00(totchol) + 1.02(BMI))
+
+
+### Interpretation:
 
 Gender, Age, Number of cigarette smoked per day, hypertension status have significant association to CHD.
 
