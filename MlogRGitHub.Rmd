@@ -583,10 +583,11 @@ P value is <0.001, hence model shows good fit
 ```{r}
 # Assuming 'model' is your logistic regression model
 library(pROC)
-roc_curve <- roc(response ~ predict(prem.final.mod, type = "response"), data = Data1)
+roc_curve <- roc(TenYearCHD ~ predict(prem.final.mod, type = "response"), data = Data1)
 auc(roc_curve)
+plot(roc_curve)
 
 ```
-
+Area under
 
 # Interpretation
