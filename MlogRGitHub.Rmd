@@ -26,7 +26,7 @@ Ahmad Firdaus bin Mohamed
 
 ## Dataset
 
-This dataset is publically available on the Kaggle website, it is an ongoing cardiovascular study on residents of the town of Framingham, Massachusetts. The dataset provides the patient's information. It includes over 4000 records and 15 attributes.
+This dataset is publically available on the Kaggle website <https://www.kaggle.com/datasets/dileep070/heart-disease-prediction-using-logistic-regression/>, it is an ongoing cardiovascular study on residents of the town of Framingham, Massachusetts. The dataset provides the patient's information. It includes over 4000 records and 15 attributes.
 
 Variables:
 
@@ -311,7 +311,7 @@ We identified that variables Age (age), BMI (BMI), Gender(Gender) as confounder.
 
 # Results
 
-## Estimation
+# Estimation
 
 ## Simple Logistic Regression
 
@@ -392,7 +392,7 @@ From the ANOVA The p-value (Pr(\>Chi)) is greater than the typical significance 
 
 Hence, we choose multivariable model A (mlr.main) as our preliminary Final Model for Logistic Regression due to model with the least variable is parsimonious model. Model A has the outcome (Ten Year CHD = chd/nochd) and the predictor of interest(diabetes) along with other covariates (gender, age, cigs per day, prevalent hypertension, total cholesterol, BMI and BP Medication status)
 
-## Prediction
+# Prediction
 
 For prediction: 1. estimated log odds 2. probabilities 3. residuals 4.hat values 5. Cooks distance 6. standardized residuals
 
@@ -508,7 +508,7 @@ head(predict.prob)
 augment(prem.final.mod, newdata = newdata1, type.predict = 'response')
 ```
 
-## Model Checking
+# Model Checking
 
 ### Check overall fitness:
 
@@ -558,13 +558,20 @@ by using:
 
 Based on Mark Bounthavong, the hoslem.test function might cause the p-values to be very small if the outcome variable is analysed under factorized variable. Hence, Mark suggested to use several other function from other packages to perform Hosmer-lemeshow test.
 
+Further reading and references to install packages for `largesamplehl` package in this link: <https://rpubs.com/mbounthavong/logistic_regression_part2>
+
 Several suggestion R packages function includes:
 
-1.hoslem.test function from the ResourceSelection package 2.performance_hosmer function from the performance package 3.hltest function from the largesamplehl package
+1.hoslem.test function from the ResourceSelection package
 
-largesamplehl package need to be installed using the below codes, as suggested by Mark Bounthavong.
+2.performance_hosmer function from the performance package
+
+3\. hltest function from the largesamplehl package
+
+Due to some troubleshooting encountered, `largesamplehl` package need to be installed using the below codes, as suggested by Mark Bounthavong. `devtool`package are required prior to installation command of `install_github("gnattino/largesamplehl")`
 
 ```{r}
+library(devtools)
 install_github("gnattino/largesamplehl")
 ```
 
@@ -657,7 +664,7 @@ Subsequently using the filtered data and fit into the logistic regression model,
 
 #### Adjusted Model
 
-# Fit the logistic regression model again using the filtered data
+#### Fit the logistic regression model again using the filtered data
 
 ```{r}
 mlr.filtered.influential <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = filtered_data)
@@ -667,7 +674,7 @@ Next, we can assess the goodness of fit for the adjusted model with Hosmer-Lemes
 
 ### Reperform Model Checking for Adjusted Model
 
-### Check overall fitness:
+#### Check overall fitness:
 
 1.  Accuracy
 2.  Sensitivity
@@ -761,7 +768,7 @@ summary(prem.final.mod)
 
 Currently, we have two model: Model A (prem.final.mod), and Adjusted Model (mlr.filtered.influential). Model A has the outcome of Ten Years Risk of CHD (TenYearCHD = chd/nochd) and the predictor of interest is (diabetes) and other covariates based on Data2, Adjusted model has similiar outcome (Ten Year CHD) and predictor of interest(diabetes) and other covariates based on filtered data(outliers removed).
 
-We can see the differences of coefficients estimates for each covariates towards outcome variables for the two model. For example the age variable
+We can see the differences of coefficients estimates for each covariates towards outcome variables for the two model.
 
 ### Reperform Diagnostic plots
 
@@ -769,19 +776,22 @@ We can see the differences of coefficients estimates for each covariates towards
 plot(mlr.filtered.influential)
 ```
 
-Most residuals appear to be falling within greater -/+ 2, lesser influentials observation.
+Most residuals appear to be falling within -2 and 2, lesser influentials observation.
 
 # Interpretation
 
-Model A - Preliminary final model Model B - Adjusted model
+Model A is Preliminary final model, Model B is our Adjusted model
 
 ```{r}
 ModelA <- prem.final.mod
-tidy(ModelA, exponentiate = TRUE)
+tidy(ModelA, conf.int = TRUE)
+tidy(ModelA, exponentiate = TRUE, conf.int = TRUE)
+
 ```
 
 ```{r}
 ModelB <- mlr.filtered.influential
+tidy(ModelB, conf.int = TRUE)
 tidy(ModelB, exponentiate = TRUE, conf.int = TRUE)
 ```
 
@@ -792,37 +802,105 @@ tbl_regression(ModelA, exponentiate = TRUE) %>%
   as_gt() %>%
   gt::tab_header(title = "Table 3. Multiple Logistic Regression (Model A)")
 
+tbl_regression(ModelA) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_header(title = "Table 4. Multiple Logistic Regression (Model A)")
+
 tbl_regression(ModelB, exponentiate = TRUE) %>%
   bold_labels() %>%
   italicize_levels() %>%
   as_gt() %>%
-  gt::tab_header(title = "Table 4. Multiple Logistic Regression (Model B)")
+  gt::tab_header(title = "Table 5. Multiple Logistic Regression (Model B)")
+
+tbl_regression(ModelB) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_header(title = "Table 6. Multiple Logistic Regression (Model B)")
 ```
 
-## Model Equation
+## Logistic Regression Equation
 
-Model A Equation: Ten Years risk of CHD = (0.0000175) + 1.94(gender) + 1.07(age) + 1.02(cigsperday) + 1.84(prevalentHyp) + 2.06(diabetes) + 1.00(totChol)
+### Model A Equation:
 
-Model B Equation: Ten Years risk of CHD = (0.0000175) + 2.36(gender) + 1.14(age) + 1.02(cigsperday) + 2.12(prevalentHyp)
+P=eβ0+β1X1 + βkXk /1+eβ0+β1X1+ βkXk
+
+where P is the probabilities of development of coronary heart disease in ten years ( 1 = chd, 0 = no chd)
+
+When all features plugged in:
+
+logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β4∗totChol + β5∗prevalentHyp + β6\*diabetes]{.underline}
+
+**Estimated log odds** = logit(TenYearsCHD) = log(p/(1-p)) = (-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol)
+
+**Estimated odds** = exp ((-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol)
+
+**Estimated logistic probability** = ( Estimated odds / 1 + estimated odds)
+
+= exp ((-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol) / [ 1 + exp ((0.000793) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol)]
+
+### Model B Equation:
+
+P=eβ0+β1X1 + βkXk /1+eβ0+β1X1+ βkXk
+
+where P is the probabilities of development of coronary heart disease in ten years ( 1 = chd, 0 = no chd)
+
+When all features plugged in:
+
+logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β4∗prevalentHyp]{.underline}
+
+**Estimated log odds** = logit(TenYearsCHD) = log(p/(1-p)) = (-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp)
+
+**Estimated odds** = exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp))
+
+**Estimated logistic probability** = ( Estimated odds / 1 + estimated odds)
+
+= exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp)) / [ 1 + exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp))]
 
 ### Interpretation:
 
-For MODEL A:
+For **MODEL A**:
 
 Gender, Age, Number of cigarette smoked per day, hypertension status, diabetes and total cholesterol have significant association to development of CHD.
 
-1.  Men has 1.94 time the odds compared to women to develop CHD (95% CI=1.34,2.02, p value \<0.001) when adjusted to age, cigperday, hypertension status, diabetes and total cholesterol.
-2.  Every 1 year increase of age, has 1.07 time the odds of developing CHD (95% CI= 1.06,1.09, p value \<0.001) when adjusted to gender, cigperday & hypertension status , diabetes and total cholesterol.
-3.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI=1.01,1.03, p value \<0.001) when adjusted to gender, age, hypertension status, diabetes and total cholesterol.
-4.  Those who diagnosed with hypertension, has 1.84 time the odds of developing CHD (95% CI = 1.49,2.27, p value \<0.001) when adjusted to gender, age, diabetes, tot cholesterol &cigperday.
-5.  BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
+1.  The log odds of developing 10 year risk of CHD in men is 0.50 compared to women and 95 to 100 similiar studies will have the true log odds laying between 0.29 and 0.71, p \<0.001.
+2.  Men has 1.94 time the odds compared to women developing 10 year risk of CHD (95% CI=1.34,2.02, p \<0.001) when adjusted to age, cigperday, hypertension status, diabetes and total cholesterol.
+3.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.07, where over repeated sampling 95 to 100 similiar studies will have the true log odds laying between 0.06 and 0.08, p \<0.001.
+4.  Every 1 year increase of age, has 1.07 time the odds of developing 10 year risk CHD (95% CI= 1.06,1.09, p \<0.001) when adjusted to gender, cigperday & hypertension status , diabetes and total cholesterol.
+5.  With every 1 stick increase of cigarettes used per day, the log odds of having 10 year risk of CHD is 0.02 and 95 to 100 similiar studies, they will have true log odds laying between 0.01 and 0.03, p \<0.001.
+6.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing 10 year risk of CHD (95% CI=1.01,1.03, p \<0.001) when adjusted to gender, age, hypertension status, diabetes and total cholesterol.
+7.  The log odds of developing 10 year risk of CHD in participants with hypertension is 0.61 compared to those who does not have hypertension, and 95 to 100 similiar studies, over repeated sampoling the true log odds laying between 0.40 and 0.82, p \<0.001.
+8.  Those who diagnosed with hypertension, has 1.84 time the odds of developing CHD (95% CI = 1.49,2.27, p \<0.001) when adjusted to gender, age, diabetes, tot cholesterol &cigperday
+9.  The log odds of developing 10 year risk of CHD in participants with diabetes is 0.72 compared to those who does not have hypertension, and 95 to 100 similiar studies, over repeated sampoling the true log odds laying between 0.27 and 1.2, p = 0.001.
+10. Those who diagnosed with diabetes, has 2.06 times the odds of developing CHD in ten years (95% CI 1.31, 3.21, p = 0.001) compared to those who does not have diabetes, when adjusted to gender, age, total cholesterol, cigs per day and hypertension status.
+11. Any 1 mg/dl change of total cholesterol does not change the risk of developing CHD eventhough total cholesterol shown significant association (p = 0.024) to development of CHD.
+12. BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
 
-For MODEL B:
+For **MODEL B**:
 
 Gender, Age, Number of cigarette smoked per day, hypertension status have significant association to development of CHD.
 
-1.  Men has 2.36 time the odds compared to women to develop CHD (95% CI:1.75,3.19, p value \<0.001) when adjusted to age, cigperday, hypertension status.
-2.  Every 1 year increase of age, has 1.14 time the odds of developing CHD (95% CI: 1.11,1.16, p value \<0.001) when adjusted to gender, cigperday & hypertension status.
-3.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI 1.01,1.03, p value \<0.001) when adjusted to gender, age, hypertension status
-4.  Those who diagnosed with hypertension, has 2.12 time the odds of developing CHD (95% CI 1.60,2.80, p value \<0.001) when adjusted to gender, age, cigperday.
-5.  Diabetes status, total cholesterol level, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
+1.  The log odds of developing 10 year risk of CHD in men is 0.86 compared to women and 95 to 100 similiar studies will have the true log odds laying between 0.56 and 1.2, and its effect is statistically significant p \<0.001.
+2.  Men has 2.36 time the odds compared to women to develop CHD (95% CI:1.75,3.19, p value \<0.001) when adjusted to age, cigperday, hypertension status.
+3.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.13, where over repeated sampling 95 to 100 similiar studies will have the true log odds laying between 0.11 and 0.15, and effect is statistically significant p \<0.001.
+4.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.13, where over repeated sampling 95 to 100 similiar studies will have the true log odds laying between 0.11 and 0.15.
+5.  Every 1 year increase of age, has 1.14 time the odds of developing CHD (95% CI: 1.11,1.16, p value \<0.001) when adjusted to gender, cigperday & hypertension status.
+6.  With every 1 stick increase of cigarettes used per day, the log odds of having 10 year risk of CHD is 0.02 and 95 to 100 similiar studies, they will have true log odds laying between 0.01 and 0.03, p \<0.001.
+7.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI 1.01,1.03, p value \<0.001) when adjusted to gender, age, hypertension status.
+8.  The log odds of developing 10 year risk of CHD in participants with hypertension is 0.75 compared to those who does not have hypertension, and 95 to 100 similiar studies, over repeated sampoling the true log odds laying between 0.47 and 1.0 with significance level of \<0.001.
+9.  Those who diagnosed with hypertension, has 2.12 time the odds of developing CHD (95% CI 1.60,2.80, p value \<0.001) when adjusted to gender, age, cigperday.
+10. Diabetes status, total cholesterol level, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
+
+# References
+
+1.  Logistic Regression DrPH -Multivariable course Notes and Practical notes - Professor Kamarul Imran Musa
+
+2.  Logistic Regression in R by Mark Bounthavong <https://rpubs.com/mbounthavong/logistic_regression>
+
+3.  Logistic Regression in R by MArk BOunthaving Part 2 <https://rpubs.com/mbounthavong/logistic_regression_part2>
+
+4.  Goodness-of-fit test for a logistic regression model fitted using survey sample data by Kellie J. Archer and Stanley Lemeshow
+
+5.  Detection of Ourliers and Influential Observations in Binary Logistic Regression: An empirical study by S.K Sarkar, Habshah Midi
