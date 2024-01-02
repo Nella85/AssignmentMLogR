@@ -2,15 +2,15 @@
 title: "FHLogReg2"
 author: "Nionella Bt Stephen Sampil"
 date: "2023-12-18"
-output: html_document
-editor_options: 
-  markdown: 
-    wrap: 72
+output: 
+  rmdformats::readthedown
 ---
 
 # Introduction
 
 ## Group Members
+
+![](DSC_1199.JPG)
 
 Nionella binti Stephen Sampil
 
@@ -26,15 +26,11 @@ Ahmad Firdaus bin Mohamed
 
 ## Dataset
 
-This dataset is publically available on the Kaggle website, it is an
-ongoing cardiovascular study on residents of the town of Framingham,
-Massachusetts. The dataset provides the patient's information. It
-includes over 4000 records and 15 attributes.
+This dataset is publically available on the Kaggle website, it is an ongoing cardiovascular study on residents of the town of Framingham, Massachusetts. The dataset provides the patient's information. It includes over 4000 records and 15 attributes.
 
 Variables:
 
-Each attribute is a potential risk factor. There are both demographic,
-behavioral and medical risk factors.
+Each attribute is a potential risk factor. There are both demographic, behavioral and medical risk factors.
 
 **Demographic:**
 
@@ -44,25 +40,19 @@ behavioral and medical risk factors.
 
 **Behavioral**
 
--   Current Smoker: whether or not the patient is a current smoker
-    (Categorical/Nominal)
+-   Current Smoker: whether or not the patient is a current smoker (Categorical/Nominal)
 
--   Cigs Per Day: the number of cigarettes that the person smoked on
-    average in one day.(continuous)
+-   Cigs Per Day: the number of cigarettes that the person smoked on average in one day.(continuous)
 
 **Medical( history)**
 
--   BP Meds: whether or not the patient was on blood pressure medication
-    (Categorical/Nominal)
+-   BP Meds: whether or not the patient was on blood pressure medication (Categorical/Nominal)
 
--   Prevalent Stroke: whether or not the patient had previously had a
-    stroke (Categorical/Nominal)
+-   Prevalent Stroke: whether or not the patient had previously had a stroke (Categorical/Nominal)
 
--   Prevalent Hyp: whether or not the patient was hypertensive
-    (Categorical/Nominal)
+-   Prevalent Hyp: whether or not the patient was hypertensive (Categorical/Nominal)
 
--   Diabetes: whether or not the patient had diabetes
-    (Categorical/Nominal)
+-   Diabetes: whether or not the patient had diabetes (Categorical/Nominal)
 
 **Medical(current)**
 
@@ -80,19 +70,11 @@ behavioral and medical risk factors.
 
     **Predict variable (desired target)**
 
--   10 year risk of coronary heart disease CHD (binary: "1", means
-    "Yes", "0" means "No")
+-   10 year risk of coronary heart disease CHD (binary: "1", means "Yes", "0" means "No")
 
 # Method
 
-World Health Organization has estimated 12 million deaths occur
-worldwide, every year due to Heart diseases. Half the deaths in the
-United States and other developed countries are due to cardio vascular
-diseases. The early prognosis of cardiovascular diseases can aid in
-making decisions on lifestyle changes in high risk patients and in turn
-reduce the complications. This research intends to pinpoint the most
-relevant/risk factors of heart disease as well as predict the overall
-risk using logistic regression.
+World Health Organization has estimated 12 million deaths occur worldwide, every year due to Heart diseases. Half the deaths in the United States and other developed countries are due to cardio vascular diseases. The early prognosis of cardiovascular diseases can aid in making decisions on lifestyle changes in high risk patients and in turn reduce the complications. This research intends to pinpoint the most relevant/risk factors of heart disease as well as predict the overall risk using logistic regression.
 
 ### Prepare environment / Load libraries
 
@@ -125,17 +107,17 @@ glimpse(Data1)
 ### Transform data
 
 ```{r}
-Data1 <- Data1 %>%
+Data2 <- Data1 %>%
   mutate(across(where(is.labelled), as_factor)) %>%
   mutate(glucose = as.integer(glucose))
-summary(Data1)
+summary(Data2)
 ```
 
 ### Describe Data
 
 ```{r}
-Data1 %>%
-  tbl_summary(by = TenYearCHD, statistic = list(all_continuous() ~ "{mean} ({sd})", all_categorical() ~ "{n} / {N} ({p}%)"))
+Data2 %>%
+  tbl_summary(by = TenYearCHD, statistic = list(all_continuous() ~ "{mean} ({sd})", all_categorical() ~ "{n} ({p}%)"))
 ```
 
 ### Explore data
@@ -144,61 +126,59 @@ Data1 %>%
 
 Histogram for numerical Barplots for categorical
 
-Numerical: Age, CigPerday, totchol, SBP, DBP, BMI, HR, glucose
-Categorical: Gender, Education, current smoker, BPmeds, PrevStroke,
-PrevHPt, DMstat, TenYearCHD
+Numerical: Age, CigPerday, totchol, SBP, DBP, BMI, HR, glucose Categorical: Gender, Education, current smoker, BPmeds, PrevStroke, PrevHPt, DMstat, TenYearCHD
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(age)) + 
   geom_histogram() + 
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(cigsPerDay)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(totChol)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(sysBP)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(diaBP)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(BMI)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(heartRate)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>%
+Data2 %>%
   ggplot(aes(glucose)) +
   geom_histogram() +
   facet_grid(. ~ TenYearCHD)
@@ -207,56 +187,56 @@ Data1 %>%
 Barplots
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(gender)) + 
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(education)) +  
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(currentSmoker)) +  
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(BPMeds)) +  
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(prevalentStroke)) +  
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(prevalentHyp)) +  
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(diabetes)) +  
   geom_bar() +
   facet_grid(. ~ TenYearCHD)
 ```
 
 ```{r}
-Data1 %>% 
+Data2 %>% 
   ggplot(aes(TenYearCHD)) +  
   geom_bar()
 ```
@@ -264,29 +244,26 @@ Data1 %>%
 #### Check Multicollinearity
 
 ```{r}
-Data2 <- 
-  Data1 %>% 
+Data3 <- 
+  Data2 %>% 
   select(where(is.numeric))
 ```
 
 ```{r}
-cor.Data2 <-
-  cor(Data2, use = "complete.obs", method = "pearson")
-head(round(cor.Data2,2))
+cor.Data3 <-
+  cor(Data3, use = "complete.obs", method = "pearson")
+head(round(cor.Data3,2))
 ```
 
 ```{r}
-corrplot(cor.Data2, type = 'upper', order = 'hclust')
+corrplot(cor.Data3, type = 'upper', order = 'hclust')
 ```
 
-From the correlation plot and correlation matrix, sbp and dbp is highly
-correlated. Furthermore, the categorical variable of prevalent
-hypertension already represent the hypertension status. Hence, sbp and
-dbp are removed from model.
+From the correlation plot and correlation matrix, sbp and dbp is highly correlated. Furthermore, the categorical variable of prevalent hypertension already represent the hypertension status. Hence, sbp and dbp are removed from model.
 
 Similiarly, glucose is already representated by diabetes status.
 
-#### Counfounder and mediator
+#### Confounder and mediator
 
 #### Causal diagram
 
@@ -328,14 +305,9 @@ Hypertension -> CHD
 plot(myDag)
 ```
 
-From the causal diagram, the exposure studied is diabetes
-status(diabetes) and the outcome of interest is ten years risk of
-developing CHD(TenYearCHD)
+From the causal diagram, the exposure studied is diabetes status(diabetes) and the outcome of interest is ten years risk of developing CHD(TenYearCHD)
 
-We identified that variables Age (age), BMI (BMI), Gender(Gender) as
-confounder. Total cholesterol(totChol), hypertension(prevalentHyp) and
-antihypertensive medication(BPMeds) as mediators from the causal
-diagram.
+We identified that variables Age (age), BMI (BMI), Gender(Gender) as confounder. Total cholesterol(totChol), hypertension(prevalentHyp) and antihypertensive medication(BPMeds) a s mediatorsfrom the causal diagram.
 
 # Results
 
@@ -345,13 +317,9 @@ diagram.
 
 Outcome: Ten Year Risk Developing CHD
 
-Based on literature review and expert consultation, these are the
-potential risk factors for developing Coronary heart disease in ten
-years
+Based on literature review and expert consultation, these are the potential risk factors for developing Coronary heart disease in ten years
 
-Numerical: Age, total chol, BMI, CigsPerday, sbp, dbp, glucose, HR\
-Categorical: HPT, DM, gender, BP meds, prev stroke, current Smoking
-status, education
+Numerical: Age, total chol, BMI, CigsPerday, sbp, dbp, glucose, HR Categorical: HPT, DM, gender, BP meds, prev stroke, current Smoking status, education
 
 ```{r}
 #slr.all <- glm(TenYearCHD ~ 1, data = Data1, family = binomial(link = "logit"))
@@ -361,26 +329,25 @@ status, education
 #### ALL VARIABLES
 
 ```{r}
-tbl_uvregression(Data1, method = glm, y = TenYearCHD, method.args = list(family = binomial), exponentiate = TRUE)
+tbl_uvregression(Data2, method = glm, y = TenYearCHD, method.args = list(family = binomial), exponentiate = TRUE) #odd ratio
+tbl_uvregression(Data2, method = glm, y = TenYearCHD, method.args = list(family = binomial)) # log odds
 ```
 
 ## Multiple Logistic Regression
 
-### Model without interaction
+### Model A: Model without interaction
 
 Outcome: Ten Year risk of CHD
 
-According to literature review, based on causal diagram and correlation
-matrix, these are the potential risk factors for developing CHD:
+According to literature review, based on causal diagram and correlation matrix, these are the potential risk factors for developing CHD:
 
-Numerical IV : age + totChol + BMI + cigsPerDay\
-Categorical IV: gender + prevalentHyp + BPMeds + diabetes
+Numerical IV : age + totChol + BMI + cigsPerDay Categorical IV: gender + prevalentHyp + BPMeds + diabetes
 
 ```{r}
-mlr.main <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = Data1)
+mlr.main <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = Data2)
 summary(mlr.main)
-tidy(mlr.main)
-tidy(mlr.main, exponentiate = TRUE)
+tidy(mlr.main) # log odds
+tidy(mlr.main, exponentiate = TRUE) # odds ratio
 ```
 
 ```{r}
@@ -397,7 +364,7 @@ tbl_regression(mlr.main, exponentiate = TRUE) %>%
   italicize_levels()
 ```
 
-### Model with interaction
+### Model B: Model with interaction
 
 Outcome: Ten Year risk of CHD
 
@@ -407,7 +374,7 @@ Categorical IV: gender + prevalentHyp + BPMeds + diabetes
 Interaction: Total Cholesterol with Hypertension status
 
 ```{r}
-mlr.ia <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds + totChol:prevalentHyp, family = binomial(link="logit"), data = Data1)
+mlr.ia <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds + totChol:prevalentHyp, family = binomial(link="logit"), data = Data2)
 summary(mlr.ia)
 tidy(mlr.ia)
 tidy(mlr.ia, exponentiate = TRUE)
@@ -415,25 +382,19 @@ tidy(mlr.ia, exponentiate = TRUE)
 
 ### Model Selection
 
-Model without interaction vs model with interaction, need to compare
-with anova test
+Model A vs Model B, need to compare with anova test
 
 ```{r}
 anova(mlr.main, mlr.ia, test = 'Chisq')
 ```
 
-From the ANOVA The p-value (Pr(\>F)) is greater than the typical
-significance level of 0.05. This suggests there is no difference between
-the two models.
+From the ANOVA The p-value (Pr(\>Chi)) is greater than the typical significance level of 0.05. This suggests there is no difference between the two models.
 
-Hence, we choose multivariable model without interaction (mlr.main) as
-our preliminary Final Model for Logistic Regression due to model with
-the least variable is parsimonious model.
+Hence, we choose multivariable model A (mlr.main) as our preliminary Final Model for Logistic Regression due to model with the least variable is parsimonious model. Model A has the outcome (Ten Year CHD = chd/nochd) and the predictor of interest(diabetes) along with other covariates (gender, age, cigs per day, prevalent hypertension, total cholesterol, BMI and BP Medication status)
 
 ## Prediction
 
-For prediction: 1. estimated log odds 2. probabilities 3. residuals 4.
-hat values 5. Cooks distance 6. standardized residuals
+For prediction: 1. estimated log odds 2. probabilities 3. residuals 4.hat values 5. Cooks distance 6. standardized residuals
 
 Now, our preliminary final model is (mlr.main)
 
@@ -456,11 +417,10 @@ tidy(prem.final.mod, exponentiate = TRUE, conf.int = TRUE)
 
 ### Predict Probability
 
-Formula for odds = probability / 1 - probability Formula for probability
-= Odds / 1 + Odds
+Formula for odds = probability / 1 - probability Formula for probability = Odds / 1 + Odds
 
 ```{r}
-Prob.CHD <- augment(mlr.main, type.predict = 'response')  #To get probability, must include type.predict = 'response', if not, the fitted values will produce the log odds
+Prob.CHD <- augment(prem.final.mod, type.predict = 'response')  #To get probability, must include type.predict = 'response', if not, the fitted values will produce the log odds
 Prob.CHD
 ```
 
@@ -478,8 +438,7 @@ head(predict(prem.final.mod, type = 'response'))
 
 Try to manually calculate:
 
-Gender = 1 Age = 39 Cigs Perday = 0 HPT = 0 DM = 0 Totchol = 195 BMI =
-26.97 BPmed = 0
+Gender = 1 Age = 39 Cigs Perday = 0 HPT = 0 DM = 0 Totchol = 195 BMI = 26.97 BPmed = 0
 
 Formula for log odds = B0 + B1X1 + B2X2 .......
 
@@ -505,7 +464,7 @@ Formula for probability: Odds / 1 + Odds
 0.05286277/(1 + 0.05286277)
 ```
 
-Another example: !!!! Try for 5th observation!!! Practice!!!
+Another example: !!!! Try for 5th observation!!! Practice!!! (for own notes\*\*)
 
 ```{r}
 augment(prem.final.mod, type.predict = 'response', type.residuals = 'pearson')
@@ -518,9 +477,6 @@ summary(model.matrix(prem.final.mod))
 ```
 
 Make a predictions on new data
-
-Example, what is the log odds, OR and probability of CHD for those aged
-45 years old, tot chol 400, and with diabetes
 
 ```{r}
 newdata1 <- expand.grid(age = seq(from = 32, to = 70, by = 10),
@@ -536,18 +492,15 @@ newdata1
 head(newdata1)
 ```
 
-Example, what is the log odds, OR and probability of CHD for those aged
-45 years old, tot chol 400, and with diabetes
-
 ```{r}
-model.mlr.new <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = newdata1)
-model.mlr.new
-predict.odds <- augment(prem.final.mod, newdata = newdata1, type.predict = 'link')
-head(predict.odds)
+#model.mlr.new <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = newdata1)
+#model.mlr.new
+predict.logodds <- augment(prem.final.mod, newdata = newdata1, type.predict = 'link') #log odds
+head(predict.logodds)
 ```
 
 ```{r}
-predict.prob <- augment(prem.final.mod, newdata = newdata1, type.predict = 'response')
+predict.prob <- augment(prem.final.mod, newdata = newdata1, type.predict = 'response') # probability
 head(predict.prob)
 ```
 
@@ -563,30 +516,99 @@ augment(prem.final.mod, newdata = newdata1, type.predict = 'response')
 2.  Sensitivity
 3.  SPecificity
 
+```{r}
+prem.final.prob <- 
+  augment(prem.final.mod, type.predict = 'response') %>%
+  mutate(pred.class = factor(ifelse(.fitted > 0.5, 'chd', 'no chd')))
+library(caret)
+```
+
+```{r}
+confusionMatrix(prem.final.prob$TenYearCHD, prem.final.prob$pred.class)
+```
+
+The model has an overall accuracy of 85.07%, model able to predict correctly 85.07% of the cases.
+
+Sensitivity (True Positive Rate) is relatively low at 65.71%, indicating that the model is not very good at capturing all positive cases.
+
+Specificity (True Negative Rate) is higher at 85.25%, indicating good performance in correctly identifying negative cases.
+
 ### Linearity in logits
+
+Numerical covariates should be checked for linearity in logits: age, totchol, BMI, cigs perday
+
+```{r}
+library(mfp)
+```
+
+```{r}
+lin.numerical <- mfp(TenYearCHD ~ gender + fp(age) + fp(cigsPerDay) + prevalentHyp + diabetes + 
+    fp(totChol) + fp(BMI) + BPMeds, family = binomial(link = 'logit'), data = Data2, verbose = T)
+```
+
+The transition from null modell to the linear model indicates the improvement in fit by adding the predictor variables. The final model deviance shows that the additional transformation by fractional polynomial does not lead to a significant improvement in fit.
+
+### Checking Goodness of fit test
 
 by using:
 
-• area under the curve • Hosmer-Lemeshow test • modidied Hosmer-Lemeshow
-test • Oseo Rojek test
+• area under the curve • Hosmer-Lemeshow test • modidied Hosmer-Lemeshow test • Oseo Rojek test
 
 #### Hosmer-Lemeshow Test
 
-```{r}
-# Assuming 'model' is your logistic regression model
-library(ResourceSelection)
-hoslem.test(Data1$TenYearCHD, fitted(prem.final.mod), g = 10)  # Adjust 'g' as needed
+Based on Mark Bounthavong, the hoslem.test function might cause the p-values to be very small if the outcome variable is analysed under factorized variable. Hence, Mark suggested to use several other function from other packages to perform Hosmer-lemeshow test.
 
+Several suggestion R packages function includes:
+
+1.hoslem.test function from the ResourceSelection package 2.performance_hosmer function from the performance package 3.hltest function from the largesamplehl package
+
+largesamplehl package need to be installed using the below codes, as suggested by Mark Bounthavong.
+
+```{r}
+install_github("gnattino/largesamplehl")
 ```
 
-P value is \<0.001, hence model shows good fit
+```{r}
+# Assuming 'model' is your logistic regression model
+library("ResourceSelection")
+library("largesamplehl")
+library("PredictABEL")
+library("performance")
+hoslem.test(Data1$TenYearCHD, fitted(prem.final.mod), g = 10)
+```
+
+Based on hoslem.test function from Resource selection package, the model is statistically significant (p value \< 0.001) shows the model is not good fit.
+
+```{r}
+performance_hosmer(prem.final.mod, n_bins = 10)
+```
+
+However, another method to assess goodness of fit using other R packages: performance_hosmer function from the performance package, the model shows good fit of the data as the performance_hosmer GOF test (p value = 0.336)
+
+```{r}
+hltest(prem.final.mod, G = 10)
+```
+
+Similiarly, the modified Hosmer-Lemeshow test using the hltest function from the largesamplehl package, supported the model shows good fit to the data, p value = 0.3389
+
+```{r}
+library("rms")
+```
+
+#### Omnibus Goodness of Fit test
+
+```{r}
+prem.final.res <- lrm(TenYearCHD ~ age + BMI + totChol + cigsPerDay + prevalentHyp + diabetes + BPMeds + gender, data = Data2, y = TRUE, x = TRUE)
+residuals(prem.final.res, type = "gof")
+```
+
+Based on the omnibus GOF test for preliminary final model (p value = 0.239), the model fit the data well.
 
 #### Area under the Curve (ROC)
 
 ```{r}
-# Assuming 'model' is your logistic regression model
 library(pROC)
-roc_curve <- roc(TenYearCHD ~ predict(prem.final.mod, type = "response"), data = Data1)
+roc_curve <- roc(TenYearCHD ~ predict(prem.final.mod, type = "response"), data = Data2)
 auc(roc_curve)
 plot(roc_curve)
 
@@ -594,33 +616,31 @@ plot(roc_curve)
 
 Area under Receiver of Operating Characteristic Curve (AUC-ROC):
 
-AUC-ROC is 73.1%, the model is considered moderate discriminating
-effect.
+AUC-ROC is 73.1%, the model is considered moderate discriminating effect.
+
+Hence, all of above goodness of fit test shows that our model(prem.final.mod) has good fit.
 
 ### Diagnostic Plot
+
+We can visualize any influential outliers from these diagnostic plots for preliminary final model (prem.final.mod).
 
 ```{r}
 plot(prem.final.mod)
 ```
 
-From the Pearson residual plots, we can identify there are influential
-outliers greater than +2
+From the Pearson residual plots, we can identify there are influential outliers greater than +2
 
-The studentized residual plots, we can also noted there are outliers
-greater than +2, the leverage are higher than +2 suggests presence of
-influential outliers
+The studentized pearson residual plots, we can also noted there are outliers greater than +2, the leverage are higher than +2 suggests presence of influential outliers
 
-Hence, these outliers observations may affect considerably our logistic
-regression model.
+These outliers observations may affect considerably our logistic regression model.
 
 ### Identify Influentials outliers
 
-Need to identify influentials obs,
+First, we need to identify influentials outliers, and we will attempt to remove those outliers and reperform the goodness of fit test for the filtered data.
 
+One of the method to remove outliers is by setting the threshold for Cook's Distance deviations
 
 ```{r}
-# Assuming you have a linear regression model named 'your_model' and the data frame is named 'original_data'
-# your_model <- lm(y ~ x1 + x2, data = original_data)
 
 # Calculate influence measures
 infl <- influence.measures(prem.final.mod)
@@ -630,39 +650,84 @@ infl.val <- data.frame(infl$infmat)
 cutoff_value <- 4/3656
 
 # Filter out influential observations
-filtered_data <- Data1 |> filter(infl.val$cook.d <= cutoff_value)
+filtered_data <- Data2 |> filter(infl.val$cook.d <= cutoff_value)
+```
 
+Subsequently using the filtered data and fit into the logistic regression model, and this will be our adjusted model.
+
+#### Adjusted Model
 
 # Fit the logistic regression model again using the filtered data
+
+```{r}
 mlr.filtered.influential <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = filtered_data)
+```
 
-# Compare model summaries
-summary(mlr.filtered.influential)
-summary(prem.final.mod)
+Next, we can assess the goodness of fit for the adjusted model with Hosmer-Lemeshow (HL) goodness of fit (GOF) test
+
+### Reperform Model Checking for Adjusted Model
+
+### Check overall fitness:
+
+1.  Accuracy
+2.  Sensitivity
+3.  SPecificity
+
+```{r}
+mlr.filtered.prob <- 
+  augment(mlr.filtered.influential, type.predict = 'response') %>%
+  mutate(pred.class = factor(ifelse(.fitted > 0.5, 'chd', 'no chd')))
 ```
 
 ```{r}
-tidy(prem.final.mod, conf.int = TRUE)
-tidy(prem.final.mod, exponentiate = TRUE)
+confusionMatrix(mlr.filtered.prob$TenYearCHD, mlr.filtered.prob$pred.class)
 ```
 
+The adjusted model shows an improvement in accuracy (91.77%) compared to the preliminary final model (85.07%).
+
+Sensitivity in the adjusted model 58.33%, indicating the proportion of true positive cases correctly identified.
+
+Specificity in the adjusted model is 92.00%, indicating the proportion of true negative cases correctly identified.
+
+#### Checking linearity in logit
+
 ```{r}
-tidy(mlr.filtered.influential, conf.int = TRUE)
-tidy(mlr.filtered.influential, exponentiate = TRUE)
+lin.numerical <- mfp(TenYearCHD ~ gender + fp(age) + fp(cigsPerDay) + prevalentHyp + diabetes + 
+    fp(totChol) + fp(BMI) + BPMeds, family = binomial(link = 'logit'), data = filtered_data, verbose = T)
 ```
-### Reperform Model fitness
+
+The transition from null model (1919.26) to the linear model (1550.029) indicates the improvement in fit by adding the predictor variables. The final model deviance shows that the additional transformation by fractional polynomial lead to a significant improvement in fit (1471.412).
 
 #### Hosmer-Lemeshow Test
 
 ```{r}
 # Assuming 'model' is your logistic regression model
 library(ResourceSelection)
-hoslem.test(filtered_data$TenYearCHD, fitted(mlr.filtered.influential), g = 10)  # Adjust 'g' as needed
+hoslem.test(filtered_data$TenYearCHD, fitted(mlr.filtered.influential), g = 10) 
 ```
 
-P value <0.001, the filtered influential model maintains its model fitness.
+Based on hoslem.test function from Resource selection package, the model is statistically significant (p value \< 0.001) shows the model is not good fit.
 
+```{r}
+performance_hosmer(mlr.filtered.influential, n_bins = 10)
+```
 
+As for performance_hosmer function from the performance package, the model still show good fit of the data as the performance_hosmer GOF test (p value = 0.053)
+
+```{r}
+hltest(mlr.filtered.influential, G = 10)
+```
+
+Similiarly, the modified Hosmer-Lemeshow test using the hltest function from the largesamplehl package, supported the model considered good fit to the data, p value = 0.053.
+
+#### Omnibus Goodness of fit test
+
+```{r}
+mlr.filtered.res <- lrm(TenYearCHD ~ age + BMI + totChol + cigsPerDay + prevalentHyp + diabetes + BPMeds + gender, data = filtered_data, y = TRUE, x = TRUE)
+residuals(mlr.filtered.res, type = "gof")
+```
+
+Based on the omnibus GOF test for preliminary final model (p value = 0.007), the model does not fit the data well.
 
 #### Area under the Curve (ROC)
 
@@ -674,68 +739,90 @@ auc(roc_curve)
 plot(roc_curve)
 ```
 
+The adjusted model shows an improvement in accuracy (91.77%) compared to the preliminary final model (85.07%).
 
-Area under Receiver of Operating Characteristic Curve (AUC-ROC):
+Sensitivity in the adjusted model is 58.33% compared to the preliminary final model (65.71%), indicating the proportion of true positive cases correctly identified. Specificity in the adjusted model is 92.00% compared to the preliminary final model (85.25%), indicating the proportion of true negative cases correctly identified.
 
-After model remodelling AUC-ROC is 82.26%, the model has improved to good discriminating effect.
+The AUC value is relatively high (82.2%), indicating good discriminatory power.
 
+However, the overall Hosmer-Lemeshow GOF test(p \<0.001) and Omnibus GOF test (p=0.007) shows lack of good fit, but HL GOF (binned version) (p = 0.053)and modified HL GOF test (p = 0.053) still shows model fits the data but close to significance level of 0.05.
 
+We propose to present these two model (1) Model A (prem.final.mod) and (2) Adjusted model - (mlr.filtered,influentials) as our logistic regression model.
 
-### Reperform Diagnostic plots 
+As the goal of our analysis to determine the relationship between outcome (TenYear CHD development) with predictor of interest (diabetes) with other covariates, based on literature review, overall HL GOF test, HL GOF test binned version, modified HL GOF is to determine whether the fitted model adequately describes the observed outcome experience of the data to estimate and inference the relationship between those mentioned variables. Hence, the preliminary final model that were tested for goodness of fit test is considered best logistic regression model.
+
+Subsequently, as our goal of the analysis is to adequate and accurately predict the probability of cases to develop the outcome variable, our adjusted model for logistic regression model may be the best model for prediction, in view of the significant improvement of AUC (73.1% to 82,2%), the improvement of accuracy and specificity of the model which might maximize the predictive accuracy.
+
+```{r}
+# Compare model summaries
+summary(mlr.filtered.influential)
+summary(prem.final.mod)
+```
+
+Currently, we have two model: Model A (prem.final.mod), and Adjusted Model (mlr.filtered.influential). Model A has the outcome of Ten Years Risk of CHD (TenYearCHD = chd/nochd) and the predictor of interest is (diabetes) and other covariates based on Data2, Adjusted model has similiar outcome (Ten Year CHD) and predictor of interest(diabetes) and other covariates based on filtered data(outliers removed).
+
+We can see the differences of coefficients estimates for each covariates towards outcome variables for the two model. For example the age variable
+
+### Reperform Diagnostic plots
 
 ```{r}
 plot(mlr.filtered.influential)
 ```
 
-Most residuals appear to be falling within greater -/+ 2, lesser influentials observation. 
-
-#### Compare between model without influential and preliminary final model(with influentials)
-
-To identify the difference between B coefficients between these 2 models
-
-```{r}
-tidy(prem.final.mod, exponentiate = TRUE)
-tidy(mlr.filtered.influential, exponentiate = TRUE)
-```
-
-Prelim Final Model --> B for age is 1.07, where as
-Filtered Model --> B for age is 1.14
-Due to the influentials, there are significant changes of B under diabetes status.
+Most residuals appear to be falling within greater -/+ 2, lesser influentials observation.
 
 # Interpretation
 
-Hence, the final model will be:
+Model A - Preliminary final model Model B - Adjusted model
 
 ```{r}
-Final.Model <- mlr.filtered.influential
-tidy(Final.Model, exponentiate = TRUE)
+ModelA <- prem.final.mod
+tidy(ModelA, exponentiate = TRUE)
 ```
 
 ```{r}
-tbl_regression(Final.Model, exponentiate = TRUE) %>%
+ModelB <- mlr.filtered.influential
+tidy(ModelB, exponentiate = TRUE, conf.int = TRUE)
+```
+
+```{r}
+tbl_regression(ModelA, exponentiate = TRUE) %>%
   bold_labels() %>%
   italicize_levels() %>%
   as_gt() %>%
-  gt::tab_header(title = "Table 3. Multiple Logistic Regression (Final Model)")
+  gt::tab_header(title = "Table 3. Multiple Logistic Regression (Model A)")
+
+tbl_regression(ModelB, exponentiate = TRUE) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_header(title = "Table 4. Multiple Logistic Regression (Model B)")
 ```
 
-## Model Equation 
+## Model Equation
 
-Ten Years risk of CHD = (0.0000175) + 2.36(gender) + 1.14(age) + 1.02(cigsperday) + 2.12(prevalentHyp + 0.196(diabetes) + 1.00(totchol) + 1.02(BMI))
+Model A Equation: Ten Years risk of CHD = (0.0000175) + 1.94(gender) + 1.07(age) + 1.02(cigsperday) + 1.84(prevalentHyp) + 2.06(diabetes) + 1.00(totChol)
 
+Model B Equation: Ten Years risk of CHD = (0.0000175) + 2.36(gender) + 1.14(age) + 1.02(cigsperday) + 2.12(prevalentHyp)
 
 ### Interpretation:
 
-Gender, Age, Number of cigarette smoked per day, hypertension status have significant association to CHD.
+For MODEL A:
 
-1. Men has 2.36 time the odds compared to women to develop CHD (95% CI:1.75,3.19) when adjusted to age, cigperday, hypertension status @ being male has higher chance (36%) of developing CHD compared to female when adjusted to age, cigperday, hypertension status.
-2. Every 1 year increase of age, has 1.14 time the odds of developing CHD (95% CI: 1.11,1.16) when adjusted to gender, cigperday, hypertension status.
-3. Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI 1.01,1.03) when adjusted to gender, age, hypertension status
-4. Those who diagnosed with hypertension, has 2.12 time the odds of developing CHD (95% CI 1.60,2.80) when adjusted to gender, age, cigperday.
-5. Diabetes status, total cholesterol level, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables. 
+Gender, Age, Number of cigarette smoked per day, hypertension status, diabetes and total cholesterol have significant association to development of CHD.
 
+1.  Men has 1.94 time the odds compared to women to develop CHD (95% CI=1.34,2.02, p value \<0.001) when adjusted to age, cigperday, hypertension status, diabetes and total cholesterol.
+2.  Every 1 year increase of age, has 1.07 time the odds of developing CHD (95% CI= 1.06,1.09, p value \<0.001) when adjusted to gender, cigperday & hypertension status , diabetes and total cholesterol.
+3.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI=1.01,1.03, p value \<0.001) when adjusted to gender, age, hypertension status, diabetes and total cholesterol.
+4.  Those who diagnosed with hypertension, has 1.84 time the odds of developing CHD (95% CI = 1.49,2.27, p value \<0.001) when adjusted to gender, age, diabetes, tot cholesterol &cigperday.
+5.  BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
 
+For MODEL B:
 
+Gender, Age, Number of cigarette smoked per day, hypertension status have significant association to development of CHD.
 
-
-
+1.  Men has 2.36 time the odds compared to women to develop CHD (95% CI:1.75,3.19, p value \<0.001) when adjusted to age, cigperday, hypertension status.
+2.  Every 1 year increase of age, has 1.14 time the odds of developing CHD (95% CI: 1.11,1.16, p value \<0.001) when adjusted to gender, cigperday & hypertension status.
+3.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI 1.01,1.03, p value \<0.001) when adjusted to gender, age, hypertension status
+4.  Those who diagnosed with hypertension, has 2.12 time the odds of developing CHD (95% CI 1.60,2.80, p value \<0.001) when adjusted to gender, age, cigperday.
+5.  Diabetes status, total cholesterol level, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
