@@ -12,17 +12,19 @@ output:
 
 ![](DSC_1199.JPG)
 
-Nionella binti Stephen Sampil
+1.  *Nionella binti Stephen Sampil*
 
-Wan Nor Syafiqah binti Wan Salleh
+2.  *Wan Nor Syafiqah binti Wan Salleh*
 
-Nur Hafizah binti Sukeri
+3.  *Nur Hafizah binti Sukeri*
 
-Farah Munirah binti Mior Mazlan
+4.  *Farah Munirah binti Mior Mazlan*
 
-Zahid bin Zulkifli
+5.  *Zahid bin Zulkifli*
 
-Ahmad Firdaus bin Mohamed
+6.  *Ahmad Firdaus bin Mohamed*
+
+**Our work repository is also available on GitHub link <https://github.com/Nella85/AssignmentMLogR>**
 
 ## Dataset
 
@@ -88,6 +90,7 @@ library(tidyr)
 library(dplyr)
 library(corrplot)
 library(dagitty)
+library(rmdformats)
 ```
 
 ### Read data
@@ -267,6 +270,8 @@ Similiarly, glucose is already representated by diabetes status.
 
 #### Causal diagram
 
+We want create causal diagram using Dagitty package, further reading can be review here in this link <https://www.dagitty.net/manual-3.x.pdf>
+
 ```{r}
 myDag <- dagitty(' dag {
 bb="0,0,1,1"
@@ -428,6 +433,8 @@ Prob.CHD
 head(model.matrix(prem.final.mod))
 ```
 
+`type = 'response'` is to predict probability , while `type = 'link'` is to predict log odds
+
 ```{r}
 head(predict(prem.final.mod, type = 'link'))
 ```
@@ -448,7 +455,7 @@ Predicted log odds for first observation =
 (-7.1392+(0.4976*1)+(39*0.0719)+(0*0.0196)+(0*0.7249)+(195*0.0025)+(26.97*0.0152)+(0*0.3491))
 ```
 
-Predicted odds:
+Predicted odds: (either use R to manually calculate or using calculator to get OR)
 
 Formula: exp(B0 + B1X1 + B2X2......)
 
@@ -464,7 +471,7 @@ Formula for probability: Odds / 1 + Odds
 0.05286277/(1 + 0.05286277)
 ```
 
-Another example: !!!! Try for 5th observation!!! Practice!!! (for own notes\*\*)
+Another method of prediction code using `augment` function, to predict probability.
 
 ```{r}
 augment(prem.final.mod, type.predict = 'response', type.residuals = 'pearson')
@@ -488,19 +495,16 @@ newdata1 <- expand.grid(age = seq(from = 32, to = 70, by = 10),
                        BMI = seq(from = 15.54, to = 56.80, by=10),
                        BPMeds = c('not on hypertensive medication', 'on hypertensive medication'),
                        TenYearCHD = c('no chd', 'chd'))
-newdata1
 head(newdata1)
 ```
 
 ```{r}
-#model.mlr.new <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = newdata1)
-#model.mlr.new
-predict.logodds <- augment(prem.final.mod, newdata = newdata1, type.predict = 'link') #log odds
+predict.logodds <- augment(prem.final.mod, newdata = newdata1, type.predict = 'link')          #log odds
 head(predict.logodds)
 ```
 
 ```{r}
-predict.prob <- augment(prem.final.mod, newdata = newdata1, type.predict = 'response') # probability
+predict.prob <- augment(prem.final.mod, newdata = newdata1, type.predict = 'response')      # probability
 head(predict.prob)
 ```
 
@@ -897,10 +901,16 @@ Gender, Age, Number of cigarette smoked per day, hypertension status have signif
 
 1.  Logistic Regression DrPH -Multivariable course Notes and Practical notes - Professor Kamarul Imran Musa
 
-2.  Logistic Regression in R by Mark Bounthavong <https://rpubs.com/mbounthavong/logistic_regression>
+2.  Data Analysis in Medicine and Health using R by Kamarul Imran, Wan Nor Arifin, Tengku Muhammad Hanis Tengku Mokhtar, 6 Dec 2022 <https://bookdown.org/drki_musa/dataanalysis/>
 
-3.  Logistic Regression in R by MArk BOunthaving Part 2 <https://rpubs.com/mbounthavong/logistic_regression_part2>
+3.  Logistic Regression in R by Mark Bounthavong <https://rpubs.com/mbounthavong/logistic_regression>
 
-4.  Goodness-of-fit test for a logistic regression model fitted using survey sample data by Kellie J. Archer and Stanley Lemeshow
+4.  Logistic Regression in R by MArk BOunthaving Part 2 <https://rpubs.com/mbounthavong/logistic_regression_part2>
 
-5.  Detection of Ourliers and Influential Observations in Binary Logistic Regression: An empirical study by S.K Sarkar, Habshah Midi
+5.  Goodness-of-fit test for a logistic regression model fitted using survey sample data by Kellie J. Archer and Stanley Lemeshow <https://journals.sagepub.com/doi/pdf/10.1177/1536867X0600600106>
+
+6.  Detection of Ourliers and Influential Observations in Binary Logistic Regression: An empirical study by S.K Sarkar, Habshah Midi <https://scialert.net/fulltext/?doi=jas.2011.26.35>
+
+7.  R Markdown Themes Guide by Rany Dwi Cahyaningtyas, 28 May, 2023 <https://rpubs.com/ranydc/rmarkdown_themes>
+
+8.  Drawing and Analyzing Causal DAGs with DAGitty by Johannes Textor, July 18, 2023 <https://www.dagitty.net/manual-3.x.pdf>
