@@ -266,53 +266,52 @@ From the correlation plot and correlation matrix, sbp and dbp is highly correlat
 
 Similiarly, glucose is already representated by diabetes status.
 
-#### Confounder and mediator
+### Confounder and mediator
 
 #### Causal diagram
 
-We want create causal diagram using Dagitty package, further reading can be review here in this link <https://www.dagitty.net/manual-3.x.pdf>
+We want to create causal diagram using `dagitty` package in this part. Further reading regarding `dagitty` can be reviewed here in this link <https://www.dagitty.net/manual-3.x.pdf>
 
 ```{r}
 myDag <- dagitty(' dag {
 bb="0,0,1,1"
-"Anti-Hypertensive Medication" [pos="0.602,0.881"]
-"Smoking Status" [pos="0.743,0.775"]
-"Total Cholesterol" [pos="0.302,0.122"]
-Age [pos="0.541,0.072"]
-BMI [pos="0.700,0.190"]
-CHD [outcome,pos="0.817,0.482"]
-Diabetes [exposure,pos="0.092,0.449"]
-Gender [pos="0.185,0.754"]
-Hypertension [pos="0.359,0.897"]
-"Anti-Hypertensive Medication" -> CHD
-"Anti-Hypertensive Medication" <-> Hypertension
-"Smoking Status" -> CHD
-"Smoking Status" -> Hypertension
-"Total Cholesterol" -> CHD
-"Total Cholesterol" -> Hypertension
-Age -> CHD
-Age -> Diabetes
-Age -> Hypertension
-BMI -> "Total Cholesterol"
-BMI -> CHD
-BMI -> Hypertension
-BMI <-> Diabetes
-Diabetes -> "Total Cholesterol"
-Diabetes -> CHD
-Diabetes -> Hypertension
-Gender -> "Smoking Status"
-Gender -> "Total Cholesterol"
-Gender -> CHD
-Gender -> Diabetes
-Gender -> Hypertension
-Hypertension -> CHD
+BMI [pos="0.433,0.842"]
+BPMeds [pos="0.742,0.770"]
+TenYearCHD [outcome,pos="0.805,0.507"]
+age [pos="0.638,0.259"]
+cigsPerDay [pos="0.269,0.760"]
+diabetes [pos="0.464,0.192"]
+gender [pos="0.305,0.228"]
+prevalentHyp [exposure,pos="0.179,0.535"]
+totChol [pos="0.580,0.822"]
+BMI -> TenYearCHD
+BMI -> diabetes
+BMI -> prevalentHyp
+BPMeds -> TenYearCHD
+age -> TenYearCHD
+age -> diabetes
+age -> prevalentHyp
+cigsPerDay -> TenYearCHD
+cigsPerDay -> prevalentHyp
+diabetes -> TenYearCHD
+diabetes -> prevalentHyp
+gender -> BMI
+gender -> TenYearCHD
+gender -> cigsPerDay
+gender -> diabetes
+gender -> prevalentHyp
+gender -> totChol
+prevalentHyp -> BPMeds
+prevalentHyp -> TenYearCHD
+totChol -> TenYearCHD
+totChol -> prevalentHyp
 }')
 plot(myDag)
 ```
 
-From the causal diagram, the exposure studied is diabetes status(diabetes) and the outcome of interest is ten years risk of developing CHD(TenYearCHD)
+From the causal diagram, the exposure studied is hypertension status (prevalentHyp) and the outcome of interest is ten years risk of developing CHD(TenYearCHD)
 
-We identified that variables Age (age), BMI (BMI), Gender(Gender) as confounder. Total cholesterol(totChol), hypertension(prevalentHyp) and antihypertensive medication(BPMeds) a s mediatorsfrom the causal diagram.
+We identified that variables Age (age), BMI (BMI), Gender(Gender), Total cholesterol(totChol), diabetes status(diabetes) as confounders. Antihypertensive medication status (BPMeds) is mediators from the causal diagram.
 
 # Results
 
@@ -775,7 +774,7 @@ summary(mlr.filtered.influential)
 summary(prem.final.mod)
 ```
 
-Currently, we have two model: Model A (prem.final.mod), and Adjusted Model (mlr.filtered.influential). Model A has the outcome of Ten Years Risk of CHD (TenYearCHD = chd/nochd) and the exposure is (diabetes) and other covariates based on Data2, Adjusted model has similiar outcome (Ten Year CHD) and predictor of interest(diabetes) and other covariates based on filtered data(outliers removed).
+Currently, we have two model: Model A (prem.final.mod), and Adjusted Model (mlr.filtered.influential). Model A has the outcome of Ten Years Risk of CHD (TenYearCHD = chd/nochd) and the exposure is Hypertension status (prevalent Hyp) and other covariates based on Data2, Adjusted model has similiar outcome (Ten Year CHD) and exposure is Hypertension status (prevalent Hyp) and other covariates based on filtered data (outliers removed).
 
 We can see the differences of coefficients estimates for each covariates towards outcome variables for the two model.
 
@@ -804,37 +803,47 @@ tidy(ModelB, conf.int = TRUE)
 tidy(ModelB, exponentiate = TRUE, conf.int = TRUE)
 ```
 
+This is multivariable logistic regression table summary for **Model A**:
+
+We can present the table to show the log odds:
+
 ```{r}
 tbl_regression(ModelA, exponentiate = TRUE) %>%
   bold_labels() %>%
   italicize_levels() %>%
   as_gt() %>%
   gt::tab_header(title = "Table 3. Multiple Logistic Regression (Model A)")
+```
 
+Or, we can present the table to show the odds ratio(OR):
+
+```{r}
 tbl_regression(ModelA) %>%
   bold_labels() %>%
   italicize_levels() %>%
   as_gt() %>%
   gt::tab_header(title = "Table 4. Multiple Logistic Regression (Model A)")
+```
 
-tbl_regression(ModelB, exponentiate = TRUE) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  as_gt() %>%
-  gt::tab_header(title = "Table 5. Multiple Logistic Regression (Model B)")
+This is multivariable logistic regression table summary for **Model B**:
 
-tbl_regression(ModelB) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  as_gt() %>%
-  gt::tab_header(title = "Table 6. Multiple Logistic Regression (Model B)")
+We can present the table to show the log odds:
+
+```{r}
+tbl_regression(ModelB, exponentiate = TRUE) %>% bold_labels() %>% italicize_levels() %>% as_gt() %>% gt::tab_header(title = "Table 5. Multiple Logistic Regression (Model B)")
+```
+
+Or, we can present the table to show the odds ratio(OR):
+
+```{r}
+tbl_regression(ModelB) %>% bold_labels() %>% italicize_levels() %>% as_gt() %>% gt::tab_header(title = "Table 6. Multiple Logistic Regression (Model B)") 
 ```
 
 ## Logistic Regression Equation
 
 ### Model A Equation:
 
-P=eβ0+β1X1 + βkXk /1+eβ0+β1X1+ βkXk
+P=exp(β0+β1X1 + βkXk( / (1+expβ0+β1X1+ βkXk)
 
 where P is the probabilities of development of coronary heart disease in ten years ( 1 = chd, 0 = no chd)
 
