@@ -338,8 +338,19 @@ summary(slr.all)
 This is univariable logistic regression table summary which includes all the variable. This is useful if our aim is exploratory research. However, our aim now is confirmatory research.
 
 ```{r}
-tbl_uvregression(Data2, method = glm, y = TenYearCHD, method.args = list(family = binomial), exponentiate = TRUE) #odd ratio
-tbl_uvregression(Data2, method = glm, y = TenYearCHD, method.args = list(family = binomial)) # log odds
+tbl_uvregression(Data2, method = glm, y = TenYearCHD, method.args = list(family = binomial)) %>%        
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_header(title = "Table 1. Simple Logistic Regression")
+```
+
+```{r}
+tbl_uvregression(Data2, method = glm, y = TenYearCHD, method.args = list(family = binomial), exponentiate = TRUE) %>%        
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_header(title = "Table 2. Simple Logistic Regression")
 ```
 
 ## Multiple Logistic Regression
