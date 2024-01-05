@@ -843,12 +843,6 @@ tbl_regression(ModelB) %>% bold_labels() %>% italicize_levels() %>% as_gt() %>% 
 
 ### Model A Equation:
 
-P=exp(β0+β1X1 + βkXk( / (1+expβ0+β1X1+ βkXk)
-
-where P is the probabilities of development of coronary heart disease in ten years ( 1 = chd, 0 = no chd)
-
-When all features plugged in:
-
 logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β5∗prevalentHyp + β6\*diabetes]{.underline}
 
 **Estimated log odd** = (-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes))
@@ -860,12 +854,6 @@ logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + 
 = exp [(-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes)] / [ 1 + exp [(0.000793) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes)]
 
 ### Model B Equation:
-
-P=eβ0+β1X1 + βkXk /1+eβ0+β1X1+ βkXk
-
-where P is the probabilities of development of coronary heart disease in ten years ( 1 = chd, 0 = no chd)
-
-When all features plugged in:
 
 logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β4∗prevalentHyp]{.underline}
 
