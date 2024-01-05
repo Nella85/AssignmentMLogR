@@ -518,7 +518,7 @@ augment(prem.final.mod, newdata = newdata1, type.predict = 'response')
 
 1.  Accuracy
 2.  Sensitivity
-3.  SPecificity
+3.  Specificity
 
 ```{r}
 prem.final.prob <- 
@@ -531,7 +531,7 @@ library(caret)
 confusionMatrix(prem.final.prob$TenYearCHD, prem.final.prob$pred.class)
 ```
 
-The model has an overall accuracy of 85.07%, model able to predict correctly 85.07% of the cases.
+The model has an overall accuracy of 85.07% (95% CI 83.87, 86.21), preliminary final model able to predict correctly 85.07% of the cases.
 
 Sensitivity (True Positive Rate) is relatively low at 65.71%, indicating that the model is not very good at capturing all positive cases.
 
@@ -550,27 +550,33 @@ lin.numerical <- mfp(TenYearCHD ~ gender + fp(age) + fp(cigsPerDay) + prevalentH
     fp(totChol) + fp(BMI) + BPMeds, family = binomial(link = 'logit'), data = Data2, verbose = T)
 ```
 
-The transition from null modell to the linear model indicates the improvement in fit by adding the predictor variables. The final model deviance shows that the additional transformation by fractional polynomial does not lead to a significant improvement in fit.
+The transition from null model to the linear model indicates the improvement in fit by adding the predictor variables. The final model deviance shows that the additional transformation by fractional polynomial does not lead to a significant improvement in fit.
 
 ### Checking Goodness of fit test
 
 by using:
 
-• area under the curve • Hosmer-Lemeshow test • modidied Hosmer-Lemeshow test • Oseo Rojek test
+1.  Area under the curve (AU-ROC curve)
+
+2.  Hosmer-Lemeshow test
+
+3.  Modified Hosmer-Lemeshow test
+
+4.  Omnibus Goodness of Fit test
 
 #### Hosmer-Lemeshow Test
 
-Based on Mark Bounthavong, the hoslem.test function might cause the p-values to be very small if the outcome variable is analysed under factorized variable. Hence, Mark suggested to use several other function from other packages to perform Hosmer-lemeshow test.
+Based on Mark Bounthavong, the `hoslem.test` function might cause the p-values to be very small if the outcome variable is analysed under factorized variable. Hence, Mark suggested to use several other function from other packages to perform Hosmer-lemeshow test.
 
 Further reading and references to install packages for `largesamplehl` package in this link: <https://rpubs.com/mbounthavong/logistic_regression_part2>
 
 Several suggestion R packages function includes:
 
-1.hoslem.test function from the ResourceSelection package
+1.  `hoslem.test` function from the `ResourceSelection` package
+2.  `performance_hosmer` function from the `performance` package
+3.  `hltest` function from the `largesamplehl` package
 
-2.performance_hosmer function from the performance package
-
-3\. hltest function from the largesamplehl package
+We also tried to use `gof` function from `LogisticDx` package as suggested in Data Analysis in Medicine and Health using R by Kamarul Imran, Wan Nor Arifin, Tengku Muhammad Hanis Tengku Mokhtar. However, this caused error in diagnostic plots, hence we decided to not use `gof` function.
 
 Due to some troubleshooting encountered, `largesamplehl` package need to be installed using the below codes, as suggested by Mark Bounthavong. `devtool`package are required prior to installation command of `install_github("gnattino/largesamplehl")`
 
@@ -594,19 +600,19 @@ Based on hoslem.test function from Resource selection package, the model is stat
 performance_hosmer(prem.final.mod, n_bins = 10)
 ```
 
-However, another method to assess goodness of fit using other R packages: performance_hosmer function from the performance package, the model shows good fit of the data as the performance_hosmer GOF test (p value = 0.336)
+However, another method to assess goodness of fit using other R packages: `performance_hosmer` function from the `performance` package, the model shows good fit of the data as the performance_hosmer GOF test (p value = 0.336)
 
 ```{r}
 hltest(prem.final.mod, G = 10)
 ```
 
-Similiarly, the modified Hosmer-Lemeshow test using the hltest function from the largesamplehl package, supported the model shows good fit to the data, p value = 0.3389
+Similarly, the modified Hosmer-Lemeshow test using the `hltest` function from the `largesamplehl` package, supported the model shows good fit to the data, p value = 0.3389
+
+#### Omnibus Goodness of Fit test
 
 ```{r}
 library("rms")
 ```
-
-#### Omnibus Goodness of Fit test
 
 ```{r}
 prem.final.res <- lrm(TenYearCHD ~ age + BMI + totChol + cigsPerDay + prevalentHyp + diabetes + BPMeds + gender, data = Data2, y = TRUE, x = TRUE)
@@ -627,9 +633,9 @@ plot(roc_curve)
 
 Area under Receiver of Operating Characteristic Curve (AUC-ROC):
 
-AUC-ROC is 73.1%, the model is considered moderate discriminating effect.
+AUC-ROC is 73.12%, the model is considered moderate discriminating effect.
 
-Hence, all of above goodness of fit test shows that our model(prem.final.mod) has good fit.
+Hence, all of above goodness of fit test shows that our model (prem.final.mod) has good fit.
 
 ### Diagnostic Plot
 
@@ -641,7 +647,7 @@ plot(prem.final.mod)
 
 From the Pearson residual plots, we can identify there are influential outliers greater than +2
 
-The studentized pearson residual plots, we can also noted there are outliers greater than +2, the leverage are higher than +2 suggests presence of influential outliers
+The studentized pearson residual plots, we can also noted there are outliers greater than +2, the leverage are higher than +2 suggests presence of influential outliers.
 
 These outliers observations may affect considerably our logistic regression model.
 
@@ -672,6 +678,7 @@ Subsequently using the filtered data and fit into the logistic regression model,
 
 ```{r}
 mlr.filtered.influential <- glm(TenYearCHD ~ gender + age + cigsPerDay + prevalentHyp + diabetes + totChol + BMI + BPMeds, family = binomial(link="logit"), data = filtered_data)
+tidy(mlr.filtered.influential, conf.int = TRUE)
 ```
 
 Next, we can assess the goodness of fit for the adjusted model with Hosmer-Lemeshow (HL) goodness of fit (GOF) test
@@ -682,7 +689,7 @@ Next, we can assess the goodness of fit for the adjusted model with Hosmer-Lemes
 
 1.  Accuracy
 2.  Sensitivity
-3.  SPecificity
+3.  Specificity
 
 ```{r}
 mlr.filtered.prob <- 
@@ -703,7 +710,7 @@ Specificity in the adjusted model is 92.00%, indicating the proportion of true n
 #### Checking linearity in logit
 
 ```{r}
-lin.numerical <- mfp(TenYearCHD ~ gender + fp(age) + fp(cigsPerDay) + prevalentHyp + diabetes + 
+lin.numerical.filtered <- mfp(TenYearCHD ~ gender + fp(age) + fp(cigsPerDay) + prevalentHyp + diabetes + 
     fp(totChol) + fp(BMI) + BPMeds, family = binomial(link = 'logit'), data = filtered_data, verbose = T)
 ```
 
@@ -717,19 +724,19 @@ library(ResourceSelection)
 hoslem.test(filtered_data$TenYearCHD, fitted(mlr.filtered.influential), g = 10) 
 ```
 
-Based on hoslem.test function from Resource selection package, the model is statistically significant (p value \< 0.001) shows the model is not good fit.
+Based on `hoslem.test` function from Resource selection package, the model is statistically significant (p value \< 0.001) shows the model is not good fit.
 
 ```{r}
 performance_hosmer(mlr.filtered.influential, n_bins = 10)
 ```
 
-As for performance_hosmer function from the performance package, the model still show good fit of the data as the performance_hosmer GOF test (p value = 0.053)
+As for `performance_hosmer` function from the `performance` package, the model still show good fit of the data as the performance_hosmer GOF test (p value = 0.053)
 
 ```{r}
 hltest(mlr.filtered.influential, G = 10)
 ```
 
-Similiarly, the modified Hosmer-Lemeshow test using the hltest function from the largesamplehl package, supported the model considered good fit to the data, p value = 0.053.
+Similiarly, the modified Hosmer-Lemeshow test using the `hltest` function from the `largesamplehl` package, supported the model considered good fit to the data, p value = 0.053.
 
 #### Omnibus Goodness of fit test
 
@@ -754,15 +761,13 @@ The adjusted model shows an improvement in accuracy (91.77%) compared to the pre
 
 Sensitivity in the adjusted model is 58.33% compared to the preliminary final model (65.71%), indicating the proportion of true positive cases correctly identified. Specificity in the adjusted model is 92.00% compared to the preliminary final model (85.25%), indicating the proportion of true negative cases correctly identified.
 
-The AUC value is relatively high (82.2%), indicating good discriminatory power.
+The AU-ROC value is relatively high (82.26%), indicating good discriminatory power, increasing from 73.12% of preliminary final model.
 
-However, the overall Hosmer-Lemeshow GOF test(p \<0.001) and Omnibus GOF test (p=0.007) shows lack of good fit, but HL GOF (binned version) (p = 0.053)and modified HL GOF test (p = 0.053) still shows model fits the data but close to significance level of 0.05.
+However, the overall Hosmer-Lemeshow GOF test(p \<0.001) and Omnibus GOF test (p=0.007) for adjusted model shows lack of good fit, but HL GOF (binned version) (p = 0.053)and modified HL GOF test (p = 0.053) still shows model fits the data. Model A has better model fit compared to adjusted model as shown above.
 
-We propose to present these two model (1) Model A (prem.final.mod) and (2) Adjusted model - (mlr.filtered,influentials) as our logistic regression model.
+We propose to present these two model (1) Model A (prem.final.mod) and (2) Adjusted model - (mlr.filtered.influentials) as our logistic regression model.
 
-As the goal of our analysis to determine the relationship between outcome (TenYear CHD development) with predictor of interest (diabetes) with other covariates, based on literature review, overall HL GOF test, HL GOF test binned version, modified HL GOF is to determine whether the fitted model adequately describes the observed outcome experience of the data to estimate and inference the relationship between those mentioned variables. Hence, the preliminary final model that were tested for goodness of fit test is considered best logistic regression model.
-
-Subsequently, as our goal of the analysis is to adequate and accurately predict the probability of cases to develop the outcome variable, our adjusted model for logistic regression model may be the best model for prediction, in view of the significant improvement of AUC (73.1% to 82,2%), the improvement of accuracy and specificity of the model which might maximize the predictive accuracy.
+Subsequently, as our goal of the analysis is to determine the association between outcome (TenYear CHD development) with predictor of interest (diabetes) with other covariates and predict the probability of cases to develop the outcome variable, in view of the significant improvement of AUC (73.1% to 82,2%), the improvement of accuracy and specificity of the model which might maximize the predictive accuracy.
 
 ```{r}
 # Compare model summaries
@@ -770,7 +775,7 @@ summary(mlr.filtered.influential)
 summary(prem.final.mod)
 ```
 
-Currently, we have two model: Model A (prem.final.mod), and Adjusted Model (mlr.filtered.influential). Model A has the outcome of Ten Years Risk of CHD (TenYearCHD = chd/nochd) and the predictor of interest is (diabetes) and other covariates based on Data2, Adjusted model has similiar outcome (Ten Year CHD) and predictor of interest(diabetes) and other covariates based on filtered data(outliers removed).
+Currently, we have two model: Model A (prem.final.mod), and Adjusted Model (mlr.filtered.influential). Model A has the outcome of Ten Years Risk of CHD (TenYearCHD = chd/nochd) and the exposure is (diabetes) and other covariates based on Data2, Adjusted model has similiar outcome (Ten Year CHD) and predictor of interest(diabetes) and other covariates based on filtered data(outliers removed).
 
 We can see the differences of coefficients estimates for each covariates towards outcome variables for the two model.
 
@@ -835,15 +840,15 @@ where P is the probabilities of development of coronary heart disease in ten yea
 
 When all features plugged in:
 
-logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β4∗totChol + β5∗prevalentHyp + β6\*diabetes]{.underline}
+logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β5∗prevalentHyp + β6\*diabetes]{.underline}
 
-**Estimated log odds** = logit(TenYearsCHD) = log(p/(1-p)) = (-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol)
+**Estimated log odd** = (-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes))
 
-**Estimated odds** = exp ((-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol)
+**Estimated odds** = exp [(-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes)]
 
 **Estimated logistic probability** = ( Estimated odds / 1 + estimated odds)
 
-= exp ((-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol) / [ 1 + exp ((0.000793) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes) + 0(totChol)]
+= exp [(-7.14) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes)] / [ 1 + exp [(0.000793) + 0.50(gender) + 0.07(age) + 0.02(cigsperday) + 0.61(prevalentHyp) + 0.72(diabetes)]
 
 ### Model B Equation:
 
@@ -855,47 +860,45 @@ When all features plugged in:
 
 logit(p) = log(p/(1-p)) = [β0 + β1∗Sexmale + β2∗age + β3∗cigsPerDay + β4∗prevalentHyp]{.underline}
 
-**Estimated log odds** = logit(TenYearsCHD) = log(p/(1-p)) = (-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp)
+**Estimated log odds** = (-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp)
 
-**Estimated odds** = exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp))
+**Estimated odds** = exp [(-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp)]
 
 **Estimated logistic probability** = ( Estimated odds / 1 + estimated odds)
 
-= exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp)) / [ 1 + exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp))]
+= exp [(-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp]) / [ 1 + exp ((-11.0) + 0.86(gender) + 0.13(age) + 0.02(cigsperday) + 0.72(prevalentHyp))]
 
 ### Interpretation:
 
 For **MODEL A**:
 
-Gender, Age, Number of cigarette smoked per day, hypertension status, diabetes and total cholesterol have significant association to development of CHD.
+Gender, Age, Number of cigarette smoked per day, hypertension status and diabetes have significant association to .
 
-1.  The log odds of developing 10 year risk of CHD in men is 0.50 compared to women and 95 to 100 similiar studies will have the true log odds laying between 0.29 and 0.71, p \<0.001.
-2.  Men has 1.94 time the odds compared to women developing 10 year risk of CHD (95% CI=1.34,2.02, p \<0.001) when adjusted to age, cigperday, hypertension status, diabetes and total cholesterol.
-3.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.07, where over repeated sampling 95 to 100 similiar studies will have the true log odds laying between 0.06 and 0.08, p \<0.001.
+1.  The log odds of developing 10 year risk of CHD in men is 0.50 (95% CI 0.29, 0.71, p \<0.001) compared to women, when adjusted to age, cigperday, hypertension status, diabetes and total cholesterol.
+2.  Men has 1.64 time the odds compared to women developing 10 year risk of CHD (95% CI=1.34,2.02, p \<0.001) when adjusted to age, cigperday, hypertension status, diabetes and total cholesterol.
+3.  With each 1 year old increase in age, the log odds for developing CHD in ten years changes by 0.07 (95% CI 0.06, 0.08, p \<0.001) when adjusted to gender, cigperday & hypertension status , diabetes and total cholesterol.
 4.  Every 1 year increase of age, has 1.07 time the odds of developing 10 year risk CHD (95% CI= 1.06,1.09, p \<0.001) when adjusted to gender, cigperday & hypertension status , diabetes and total cholesterol.
-5.  With every 1 stick increase of cigarettes used per day, the log odds of having 10 year risk of CHD is 0.02 and 95 to 100 similiar studies, they will have true log odds laying between 0.01 and 0.03, p \<0.001.
+5.  With every 1 stick increase of cigarettes used per day, the log odds of having 10 year risk of CHD changes by 0.02 (95% CI 0.01, 0.03, p \<0.001) when adjusted to gender, age, hypertension status, diabetes and total cholesterol.
 6.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing 10 year risk of CHD (95% CI=1.01,1.03, p \<0.001) when adjusted to gender, age, hypertension status, diabetes and total cholesterol.
-7.  The log odds of developing 10 year risk of CHD in participants with hypertension is 0.61 compared to those who does not have hypertension, and 95 to 100 similiar studies, over repeated sampoling the true log odds laying between 0.40 and 0.82, p \<0.001.
-8.  Those who diagnosed with hypertension, has 1.84 time the odds of developing CHD (95% CI = 1.49,2.27, p \<0.001) when adjusted to gender, age, diabetes, tot cholesterol &cigperday
-9.  The log odds of developing 10 year risk of CHD in participants with diabetes is 0.72 compared to those who does not have hypertension, and 95 to 100 similiar studies, over repeated sampoling the true log odds laying between 0.27 and 1.2, p = 0.001.
+7.  The log odds of developing 10 year risk of CHD in participants with hypertension changes by 0.61 compared to those who does not have hypertension, (95% CI 0.40, 0.82, p \<0.001) when adjusted to gender, age, diabetes, tot cholesterol &cigperday.
+8.  Those who diagnosed with hypertension, has 1.84 time the odds of developing CHD (95% CI = 1.49, 2.27, p \<0.001) when adjusted to gender, age, diabetes, tot cholesterol & cigperday.
+9.  The log odds of developing 10 year risk of CHD in participants with diabetes changes by 0.72 compared to those who does not have hypertension, (95% CI 0.27, 1.16, p = 0.001) when adjusted to gender, age, total cholesterol, cigs per day and hypertension status.
 10. Those who diagnosed with diabetes, has 2.06 times the odds of developing CHD in ten years (95% CI 1.31, 3.21, p = 0.001) compared to those who does not have diabetes, when adjusted to gender, age, total cholesterol, cigs per day and hypertension status.
-11. Any 1 mg/dl change of total cholesterol does not change the risk of developing CHD eventhough total cholesterol shown significant association (p = 0.024) to development of CHD.
-12. BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
+11. Total cholesterol, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
 
 For **MODEL B**:
 
 Gender, Age, Number of cigarette smoked per day, hypertension status have significant association to development of CHD.
 
-1.  The log odds of developing 10 year risk of CHD in men is 0.86 compared to women and 95 to 100 similiar studies will have the true log odds laying between 0.56 and 1.2, and its effect is statistically significant p \<0.001.
+1.  The log odds of developing 10 year risk of CHD in men is 0.86 compared to women (95% CI 0.56, 1.2, p \<0.001) when adjusted to age, cigperday, hypertension status.
 2.  Men has 2.36 time the odds compared to women to develop CHD (95% CI:1.75,3.19, p value \<0.001) when adjusted to age, cigperday, hypertension status.
-3.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.13, where over repeated sampling 95 to 100 similiar studies will have the true log odds laying between 0.11 and 0.15, and effect is statistically significant p \<0.001.
-4.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.13, where over repeated sampling 95 to 100 similiar studies will have the true log odds laying between 0.11 and 0.15.
-5.  Every 1 year increase of age, has 1.14 time the odds of developing CHD (95% CI: 1.11,1.16, p value \<0.001) when adjusted to gender, cigperday & hypertension status.
-6.  With every 1 stick increase of cigarettes used per day, the log odds of having 10 year risk of CHD is 0.02 and 95 to 100 similiar studies, they will have true log odds laying between 0.01 and 0.03, p \<0.001.
-7.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI 1.01,1.03, p value \<0.001) when adjusted to gender, age, hypertension status.
-8.  The log odds of developing 10 year risk of CHD in participants with hypertension is 0.75 compared to those who does not have hypertension, and 95 to 100 similiar studies, over repeated sampoling the true log odds laying between 0.47 and 1.0 with significance level of \<0.001.
-9.  Those who diagnosed with hypertension, has 2.12 time the odds of developing CHD (95% CI 1.60,2.80, p value \<0.001) when adjusted to gender, age, cigperday.
-10. Diabetes status, total cholesterol level, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
+3.  With 1 year old increase in age, the log odds for developing CHD in ten years is 0.13, (95% CI 0.11, 0.15,p \<0.001) when adjusted to gender, cigperday & hypertension status.
+4.  Every 1 year increase of age, has 1.14 time the odds of developing CHD (95% CI: 1.11,1.16, p \<0.001) when adjusted to gender, cigperday & hypertension status.
+5.  With every 1 stick increase of cigarettes used per day, the log odds of having 10 year risk of CHD is 0.02 (95% CI 0.01, 0.03, p \<0.001) when adjusted to gender, age, hypertension status.
+6.  Every 1 stick of cigarette per day, has 1.02 time the odds of developing CHD (95% CI 1.01,1.03, p\<0.001) when adjusted to gender, age, hypertension status.
+7.  The log odds of developing 10 year risk of CHD in participants with hypertension is 0.75 compared to those who does not have hypertension, (95% CI 0.47, 1.0, p \<0.001) when adjusted to gender, age, cigperday.
+8.  Those who diagnosed with hypertension, has 2.12 time the odds of developing CHD (95% CI 1.60, 2.80, p \<0.001) when adjusted to gender, age, cigperday.
+9.  Diabetes status, total cholesterol level, BMI and on Hypertensive medications or not, are not statistically significant association to developing CHD after adjusted to all other variables.
 
 # References
 
